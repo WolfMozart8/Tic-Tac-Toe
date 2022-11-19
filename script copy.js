@@ -13,7 +13,11 @@ const game = (function () {
     return {gameboard, gameStart, player1, player2, player1name, player2name, playCount};
 })();
 
-const player = (name) => {    
+const player = (name) => {   
+    const playerSelect = () => {
+
+        console.log(this)
+    } 
     return {name};
 }
 
@@ -25,9 +29,10 @@ const startButton = (function () {
         createGameBoard()
         game.player1name = prompt("Enter Your name", "Player1");
         game.player2name = prompt("Enter Your name (CPU for player2 computer)", "CPU");
-        gameStart = true;
-
+        
+        game.gameStart = true;
         e.target.remove()
+       
     })
 
     button.textContent = "Start Game"
@@ -54,11 +59,61 @@ function restart () {
     main.appendChild(button);
 }
 
+
+const play = (e) => {
+    const arr = game.gameboard;
+    const cell = e.target.getAttribute("data-cell");
+    let playerMark = "";
+
+    if (game.player1) {
+        playerMark = "X";
+    }
+    else if (game.player2) {
+        playerMark = "O";
+    }
+if (game.gameStart){
+    if (game.player2) {
+        cpuPlayer(playerMark);
+    }
+
+    else if (arr[cell] != "") {
+        console.log("JJSJS")
+        
+    }
+    else if (arr[cell] === "") {
+        game.gameboard[cell] = playerMark;
+        e.target.textContent = playerMark;
+       
+        changePlayer();
+        
+    }
+    
+    else {
+        console.log("ERROR")
+    }
+} else {
+    console.log("Start the game")
+}
+    win(playerMark);
+    
+}
+
+function changePlayer () {
+    if (game.player1) {
+        game.player1 = false;
+        game.player2 = true;
+    }
+    else {
+        game.player1 = true;
+        game.player2 = false;
+    }
+}
+
 const createGameBoard = (function (){
     const main = document.getElementById("gameboard");
     main.classList.add("gameboard");
 
-
+    game.gameStart = true;
     const gameArray = game.gameboard;
 
     for (let i = 0; i < gameArray.length; i++) { // create cells for the gameboard
@@ -67,7 +122,7 @@ const createGameBoard = (function (){
         gameboardCell.classList.add("gamecell");
 
 
-         gameboardCell.addEventListener("click", playerChoice)
+         gameboardCell.addEventListener("click", play)
 
 
         main.appendChild(gameboardCell);
@@ -118,11 +173,10 @@ if (gameStart && game.playCount <= 9){
 
 
 const cpuPlayer = (playerMark) => {
-    const player1 = game.player1;
-    const player2 = game.player2;
     const cells = document.querySelectorAll(".gamecell");
-if (gameStart && game.playCount <= 9){
+if (game.gameStart && game.playCount <= 9){
             let isEmpty = false;
+            let i = 0; 
           while (isEmpty === false){
 
           let random = Math.floor(Math.random() * 9);
@@ -132,19 +186,16 @@ if (gameStart && game.playCount <= 9){
                   game.gameboard[random] = playerMark;
                   cells[random].textContent = playerMark;
               }
+              if (i >= 30) { //to stop infinite loop
+                break;
+              }
             console.log(isEmpty)
             console.log(random)
+            i++;
         }
-        if (player1 && !player2) {
-            game.player1 = false;
-            game.player2 = true;
-        }
-        else if (player2 && !player1) {
-            game.player1 = true;
-            game.player2 = false;
         
     }
-}
+    changePlayer();
 }
 // const Player = (name, style) => {
 //     const player1 = game.player1;
@@ -172,39 +223,65 @@ function randomStart () {
 }
 function win (p) { //p is the playerMark
     const g = game.gameboard;
+    
+    let victory = "";
 
-    if (gameStart && game.playCount <= 9){
+    if (p === "X") { // check whats player make the last hit
+        victory = "player 1 Wins"
+    }
+    else if (p === "O") {
+        victory = "player 2 Wins"
+    }
+
+    if (game.gameStart && game.playCount <= 9){
 
 
     if (g[0] == p && g[1] == p && g[2] == p) { //Check if some line has the same mark
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
         restart();
     }
     else if (g[3] == p && g[4] == p && g[5] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else if (g[6] == p && g[7] == p && g[8] == p) {
-        console.log("Win")
+        console.log(victory);
+
+        game.gameStart = false;        
+        restart();
     }
     else if (g[0] == p && g[3] == p && g[6] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else if (g[1] == p && g[4] == p && g[7] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else if (g[2] == p && g[5] == p && g[8] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else if (g[0] == p && g[4] == p && g[8] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else if (g[2] == p && g[4] == p && g[6] == p) {
-        console.log("Win")
+        console.log(victory);
+        game.gameStart = false;
+        restart();
     }
     else{
         if (g[0] && g[1] && g[2] && g[3] && g[4] && g[5] &&
             g[6] && g[7] && g[8]){
         console.log("Draw")
+        restart();
     }
 
 }
